@@ -1,5 +1,9 @@
-% This script reads in SNR values and plots them according to session (pre-
-% vs post-training) and group (expert=3, beginner=2, control=1).
+% This script reads in streamline count values (i.e., nfibers) and 
+% checks that the number of streamlines in each tract is correlated across
+% subjects between sessions and checks that there are no significant
+% differences in streamline count within tracts between groups at either session. 
+% A box plot is provided to help identify unusually low streamline counts within 
+% a particular tract and to compare sessions. 
 
 clear all; close all; clc
 format shortG
