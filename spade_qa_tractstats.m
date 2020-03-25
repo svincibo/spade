@@ -6,7 +6,7 @@ format shortG
 
 remove_outliers = 'no';
 % Identify outliers to be removed.
-% outlier = [108 315 318];% 128 315 318];
+% outlier = [107];% subID of outliers to be removed
 
 stat = 'nfibers';
 
@@ -194,21 +194,19 @@ for tn = 1:size(d, 2)
     
 end
 
-% % Check correlation between groups at session 1.
-% for tn = 1:size(d, 2)
-%     
-%     corr([d(ses==1 & group==1, tn), d(ses==1 & group==2, tn), d(ses==1 & group==3, tn)], 'type', 'Pearson', 'rows', 'pairwise', 'tail', 'both')
-%     
-%     disp(['Between-group correlations for ' list_tract{tn} ': rho = ' num2str(rho(2, 1)) ', p = ' num2str(p(2, 1)) '.']);
-%     
-% end
-
 % Look at boxplot of streamline count.
 prepbox = NaN(size(d, 1)/2, size(d, 2));
 prepbox(:, 1:2:size(d, 2)*2) = d(ses==1, :);
 prepbox(:, 2:2:size(d, 2)*2) = d(ses==2, :);
+labelsforx = cell(size(d, 2)*2, 1);
+labelsforx(1:2:size(d, 2)*2) = strcat('s1-', list_tract);
+labelsforx(2:2:size(d, 2)*2) = strcat('s2-', list_tract);
 figure(2)
-boxplot(prepbox, 'colors', 'rb')
+boxplot(prepbox, 'colors', 'rb', 'Labels', labelsforx)
+xtickangle(90)
+ylabel('Streamline Count')
+xlabel('Each Tract at Each Session')
+
 
 
 
