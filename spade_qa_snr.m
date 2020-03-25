@@ -5,6 +5,9 @@ clear all; close all; clc
 format shortG
 
 remove_outliers = 'no';
+% Identify outliers to be removed.
+% outlier = [108 315 318];% 128 315 318];
+
 include = 'all';
 
 blprojectid = 'proj-5e61139282b37f2cfe8fdb28';
@@ -14,9 +17,6 @@ rootDir = '/Volumes/240/spade/';
 
 % Read in behavioral data.
 beh_data_in_tbl = readtable([rootDir 'supportFiles/SPADE_demographics.csv'], 'TreatAsEmpty', {'.', 'na'});
-
-% Identify outliers to be removed.
-% outlier = [108 315 318];% 128 315 318];
 
 % Get contents of the directory where the tract measures for this subject are stored.
 grp_contents = dir(fullfile(rootDir, blprojectid));
@@ -345,4 +345,10 @@ pbaspect([1 1 1])
 print(fullfile(rootDir, 'plots', ['plot_barplot_snr_bysessionxgroup_' include]), '-dpng')
 print(fullfile(rootDir, 'plots', 'eps', ['plot_barplot_snr_bysessionxgroup_' include]), '-depsc')
 
+hold off;
+
+figure(4)
+scatter(subID(ses == 1), snr(ses == 1), 'o')
+hold on;
+scatter(subID(ses == 2), snr(ses == 2), 'x')
 hold off;
