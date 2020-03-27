@@ -182,14 +182,14 @@ for tn = 1:size(d, 2)
     disp(['F(' num2str(tableout{2, 3}) ', ' num2str(tableout{3, 3}) ') = ' num2str(tableout{2, 5}) ', p = ' num2str(tableout{2, 6}) '.'])
     
     disp('Are there streamline count differences between sessions in Beginners?')
-    tracttotest = d(group == 1, tn);
-    sestotest = ses(group == 1)';
+    tracttotest = d(group == 2, tn);
+    sestotest = ses(group == 2)';
     [p, tableout, stats] = anova1(tracttotest, sestotest, 'off');
     disp(['F(' num2str(tableout{2, 3}) ', ' num2str(tableout{3, 3}) ') = ' num2str(tableout{2, 5}) ', p = ' num2str(tableout{2, 6}) '.'])
     
     disp('Are there streamline count differences between sessions in Controls?')
-    tracttotest = d(group == 1, tn);
-    sestotest = ses(group == 1)';
+    tracttotest = d(group == 3, tn);
+    sestotest = ses(group == 3)';
     [p, tableout, stats] = anova1(tracttotest, sestotest, 'off');
     disp(['F(' num2str(tableout{2, 3}) ', ' num2str(tableout{3, 3}) ') = ' num2str(tableout{2, 5}) ', p = ' num2str(tableout{2, 6}) '.'])
     
