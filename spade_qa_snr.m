@@ -352,3 +352,4 @@ scatter(subID(ses == 1), snr(ses == 1), 'o')
 hold on;
 scatter(subID(ses == 2), snr(ses == 2), 'x')
 hold off;
+
