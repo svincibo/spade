@@ -85,12 +85,12 @@ for t = 1:size(grp_contents, 1)
                 % Grab tract name for grouping variable.
                 tract{t, t2} = char(data_tbl_in.TractName(toi(t2)));
                 
-                if m(t, t2) <= 200
+                %if m(t, t2) <= 200
                     
                 % Alert user if tract has less than 300 streamlines.
                 disp(['Check data. Number of streamlines is ' num2str(m(t, t2)) ' for ' tract{t, t2} ' in subject ' grp_contents(t).name(5:7) '.'])
                 
-                end % end if
+                %end % end if
                 
             end % end t
             
@@ -217,6 +217,3 @@ boxplot(prepbox, 'colors', 'rb', 'Labels', labelsforx)
 xtickangle(90)
 ylabel('Streamline Count')
 xlabel('Each Tract at Each Session')
-
-
-
