@@ -100,7 +100,7 @@ for t = 1:size(grp_contents, 1)
             % Gather session, for ease.
             ses(sub_count) = str2num(grp_contents(t).name(end));
             
-            % Get age group.
+            % Get exp group.
             group(sub_count) = beh_data_in_tbl.DanceLevelCode(find((beh_data_in_tbl.No == str2num(grp_contents(t).name(5:7)))));
             
             % Get age in months.
