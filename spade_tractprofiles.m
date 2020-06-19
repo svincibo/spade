@@ -46,7 +46,7 @@ end
 beh_data_in_tbl = readtable([rootDir 'supportFiles/SPADE_demographics.csv'], 'TreatAsEmpty', {'.', 'na'});
 
 figcount = 0;
-for w = 2:length(w_measures)
+for w = 1:length(w_measures)
     
     wm_measure = w_measures{w};
     
