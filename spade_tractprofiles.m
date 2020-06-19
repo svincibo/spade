@@ -34,8 +34,7 @@ save_figures = 'yes';
 remove_outliers = 'yes';
 if strcmp(remove_outliers, 'yes')
     
-    % Identify outliers to be removed - e.g., outlier = [108 126 212 214 318];
-    
+    % Identify outliers to be removed - e.g., outlier = [108 126 212 214 318];  
     outlier = [];
     
 else
@@ -48,9 +47,17 @@ end
 beh_data_in_tbl = readtable([rootDir 'supportFiles/SPADE_demographics.csv'], 'TreatAsEmpty', {'.', 'na'});
 
 figcount = 0;
-for w = 1:length(w_measures)
+for w = 2:length(w_measures)
     
     wm_measure = w_measures{w};
+    
+    if strcmp(wm_measure, 'fa')
+        ylim_lo = 0.20; ylim_hi = 0.70;
+        ylim_diff_lo = -0.25; ylim_diff_hi = 0.25;
+    elseif strcmp(wm_measure, 'md')
+        ylim_lo = 0.60; ylim_hi = 1.20;
+        ylim_diff_lo = -0.25; ylim_diff_hi = 0.25;
+    end
     
     %% TRACTOGRAPHY.
     
@@ -144,19 +151,6 @@ for w = 1:length(w_measures)
     t = find(cellfun(@isempty,tract));
     tract(t) = {'empty'};
     
-    %     % Get group indices for tract names.
-    %     G = findgroups(tract(:));
-    %     for i = 1:length(sub)
-    %         if sub(i) < 200
-    %             group(i) = 1;
-    %         elseif sub(i) < 300
-    %             group(i) = 2;
-    %         else
-    %             group(i) = 3;
-    %         end
-    %     end
-    %     group = group';
-    
     % Get a list of unique tract names.
     list_tract = unique(tract);
     
@@ -217,10 +211,7 @@ for w = 1:length(w_measures)
                             if group(s) == 3 % expert
                                 
                                 exp_count = exp_count + 1;
-                                
-                                % Young child.
-                                %                                 plot(t_temp, 'LineStyle', linestyle, 'Color', [yc_color .2])
-                                
+
                                 % Collect.
                                 expert(:, exp_count) = t_temp;
                                 expert_ses(:, exp_count) = session;
@@ -230,9 +221,6 @@ for w = 1:length(w_measures)
                                 
                                 beg_count = beg_count + 1;
                                 
-                                % Older child.
-                                %                                 plot(t_temp, 'LineStyle', linestyle, 'Color', [oc_color .2])
-                                
                                 % Collect.
                                 beg(:, beg_count) = t_temp;
                                 beg_ses(:, beg_count) = session;
@@ -240,9 +228,6 @@ for w = 1:length(w_measures)
                             else % control
                                 
                                 con_count = con_count + 1;
-                                
-                                % Adult.
-                                %                                 plot(t_temp, 'LineStyle', linestyle, 'Color', [a_color .2])
                                 
                                 % Collect.
                                 con(:, con_count) = t_temp;
@@ -261,8 +246,7 @@ for w = 1:length(w_measures)
                 
             end %if exist
             
-            % Plot means and 95% confidence intervals (calculated from
-            % standard error: 1.96*SE). Use nanmean/nanstd because one oc subject is missing TPC.
+            % Plot means and 95% confidence intervals (calculated from standard error: 1.96*SE). 
             subplot(1, 3, 1)
             xnew = expert(:, expert_ses == 1); c = exp_color;
             plot(nanmean(xnew, 2), 'LineWidth', 3, 'LineStyle', '-', 'Color', c(1:3))
@@ -292,10 +276,10 @@ for w = 1:length(w_measures)
             
             % yaxis
             yax = get(gca,'yaxis');
-            yax.Limits = [0.20 0.70];
-            yax.TickValues = [0.20 0.45 0.70];
+            yax.Limits = [ylim_lo ylim_hi];
+            yax.TickValues = [ylim_lo (ylim_lo+ylim_hi)/2 ylim_hi];
             yax.TickDirection = 'out';
-            yax.TickLabels = {'0.20', '0.45', '0.70'};
+            yax.TickLabels = {num2str(ylim_lo, '%2.2f'), num2str((ylim_lo+ylim_hi)/2, '%2.2f'), num2str(ylim_hi, '%2.2f')};
             yax.FontName = fontname;
             yax.FontSize = fontsize;
             
@@ -335,10 +319,10 @@ for w = 1:length(w_measures)
             
             % yaxis
             yax = get(gca,'yaxis');
-            yax.Limits = [0.20 0.70];
-            yax.TickValues = [0.20 0.45 0.70];
+            yax.Limits = [ylim_lo ylim_hi];
+            yax.TickValues = [ylim_lo (ylim_lo+ylim_hi)/2 ylim_hi];
             yax.TickDirection = 'out';
-            yax.TickLabels = {'0.20', '0.45', '0.70'};
+            yax.TickLabels = {num2str(ylim_lo, '%2.2f'), num2str((ylim_lo+ylim_hi)/2, '%2.2f'), num2str(ylim_hi, '%2.2f')};
             yax.FontName = fontname;
             yax.FontSize = fontsize;
             
@@ -378,10 +362,10 @@ for w = 1:length(w_measures)
             
             % yaxis
             yax = get(gca,'yaxis');
-            yax.Limits = [0.20 0.70];
-            yax.TickValues = [0.20 0.45 0.70];
+            yax.Limits = [ylim_lo ylim_hi];
+            yax.TickValues = [ylim_lo (ylim_lo+ylim_hi)/2 ylim_hi];
             yax.TickDirection = 'out';
-            yax.TickLabels = {'0.20', '0.45', '0.70'};
+            yax.TickLabels = {num2str(ylim_lo, '%2.2f'), num2str((ylim_lo+ylim_hi)/2, '%2.2f'), num2str(ylim_hi, '%2.2f')};
             yax.FontName = fontname;
             yax.FontSize = fontsize;
             
@@ -460,10 +444,10 @@ for w = 1:length(w_measures)
             
             % yaxis
             yax = get(gca,'yaxis');
-            yax.Limits = [-0.25 0.25];
-            yax.TickValues = [-0.25 0 0.25];
+            yax.Limits = [ylim_diff_lo ylim_diff_hi];
+            yax.TickValues = [ylim_diff_lo (ylim_diff_lo+ylim_diff_hi)/2 ylim_diff_hi];
             yax.TickDirection = 'out';
-            yax.TickLabels = {'-0.25', '0', '0.25'};
+            yax.TickLabels = {num2str(ylim_diff_lo, '%2.2f'), num2str((ylim_diff_lo+ylim_diff_hi)/2, '%2.2f'), num2str(ylim_diff_hi, '%2.2f')};
             yax.FontName = fontname;
             yax.FontSize = fontsize;
             
