@@ -1,9 +1,8 @@
-% This script reads in FA, OD, and ICVF measures (from Brad Caron's
+% This script reads in FA and MD measures (from Brad Caron's
 % TractProfiles App) for each of the tracts generated (from Dan Bullock's
-% White Matter Segmentation App). It also reads in tract statistics (e.g.,
-% number of streamlines for each tract (from Dan Bullock's Check Tract
-% Quality App). It also reads in behavioral data collected as part of the
-% LWX study.
+% White Matter Segmentation App). 
+% It also reads in behavioral data (e.g., experimental group) collected as part of the
+% spade study.
 
 clear all; close all; clc
 format shortG
