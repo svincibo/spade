@@ -215,5 +215,6 @@ labelsforx(2:2:size(d, 2)*2) = strcat('s2-', list_tract);
 figure(2)
 boxplot(prepbox, 'colors', 'rb', 'Labels', labelsforx)
 xtickangle(90)
+set(gca, 'YScale', 'log')
 ylabel('Streamline Count')
 xlabel('Each Tract at Each Session')
