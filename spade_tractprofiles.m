@@ -53,9 +53,13 @@ for w = 1:length(w_measures)
     if strcmp(wm_measure, 'fa')
         ylim_lo = 0.20; ylim_hi = 0.70;
         ylim_diff_lo = -0.25; ylim_diff_hi = 0.25;
+        ylabel = 'Fractional Anisotropy (FA)';
+        ylabel_diff = 'Difference in Fractional Anisotropy (FA)';
     elseif strcmp(wm_measure, 'md')
-        ylim_lo = 0.60; ylim_hi = 1.20;
+        ylim_lo = 0.30; ylim_hi = 0.70;
         ylim_diff_lo = -0.25; ylim_diff_hi = 0.25;
+        ylabel = 'Mean Diffusivity (MD)';
+        ylabel_diff = 'Difference in Mean Diffusivity (MD)';
     end
     
     %% TRACTOGRAPHY.
@@ -105,12 +109,7 @@ for w = 1:length(w_measures)
                 stop = size(data_temp, 1)*.9;
                 
                 % Read in mean WM measure.
-                if strcmp(wm_measure, 'ad')
-                    
-                    m_wm(:, j, sub_count) = data_temp.ad_1(start:stop);
-                    sd_wm(:, j, sub_count) = data_temp.ad_2(start:stop);
-                    
-                elseif strcmp(wm_measure, 'fa')
+                if strcmp(wm_measure, 'fa')
                     
                     m_wm(:, j, sub_count) = data_temp.fa_1(start:stop);
                     sd_wm(:, j, sub_count) = data_temp.fa_2(start:stop);
@@ -119,8 +118,7 @@ for w = 1:length(w_measures)
                     
                     m_wm(:, j, sub_count) = data_temp.md_1(start:stop);
                     sd_wm(:, j, sub_count) = data_temp.md_2(start:stop);
-                    
-                    
+                                        
                 end
                 
                 % Grab tract name for grouping variable.
@@ -233,17 +231,18 @@ for w = 1:length(w_measures)
                                 con_ses(:, con_count) = session;
                                 
                             end
+                            
                             hold on;
                             
                             clear t_temp;
                             
-                        end
+                        end % if ~isempty
                         
-                    end
+                    end % for session
                     
                 end % if subID{s} ~= 0
                 
-            end %if exist
+            end % for s
             
             % Plot means and 95% confidence intervals (calculated from standard error: 1.96*SE). 
             subplot(1, 3, 1)
@@ -259,7 +258,7 @@ for w = 1:length(w_measures)
             hp1 = patch([x; x(end:-1:1); x(1)], [lo; hi(end:-1:1); lo(1)], c(1:3));
             set(hp1, 'facecolor', c(1:3), 'edgecolor', 'none', 'facealpha', .2);
             g = gca;
-            g.YLabel.String = 'Fractional Anisotropy (FA)';
+            g.YLabel.String = ylabel;
             g.YLabel.FontSize = fontsize;
             
             % xaxis
@@ -456,7 +455,7 @@ for w = 1:length(w_measures)
             g.XLabel.String = 'Location along tract';
             g.XLabel.FontSize = fontsize;
             g.XLabel.FontAngle = fontangle;
-            g.YLabel.String = {'Difference in Fractional Anisotropy (FA)'; '(Session 2 - Session 1)'};
+            g.YLabel.String = {ylabel_diff; '(Session 2 - Session 1)'};
             g.YLabel.FontSize = fontsize;
             
             pbaspect([1 1 1])
