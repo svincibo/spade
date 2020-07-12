@@ -3,14 +3,18 @@
 % White Matter Segmentation App). 
 % It also reads in behavioral data (e.g., experimental group) collected as part of the
 % spade study.
+%it runs twice, one for producing the plots for mena Fa and difference (S2-S1) and one for mean MD and
+%Md difference (S2-S1)
 
 clear all; close all; clc
 format shortG
 
 % Set working directories.
+% rootDir = '/Users/EPL_VR_02/OneDrive - University of Cyprus/PhD_SPADE/SPADE_BLData/';
 rootDir = '/Volumes/240/spade/';
 
 % Get bl project foldername.
+% blprojectid = 'SPADE_TractProfiles';
 blprojectid = 'proj-5e61139282b37f2cfe8fdb28';
 
 w_measures = {'fa', 'md'};
@@ -22,8 +26,8 @@ con_color = [0.41176 0.41176 0.41176]; %gray
 hold on;
 linewidth = 1.5;
 linestyle = 'none';
-fontname = 'Arial';
-fontsize = 16;
+fontname = 'Times New Roman';
+fontsize = 10;
 fontangle = 'italic';
 xticklength = 0;
 
@@ -46,17 +50,17 @@ end
 beh_data_in_tbl = readtable([rootDir 'supportFiles/SPADE_demographics.csv'], 'TreatAsEmpty', {'.', 'na'});
 
 figcount = 0;
-for w = 1:length(w_measures)
+for w = 1%:length(w_measures)
     
     wm_measure = w_measures{w};
     
     if strcmp(wm_measure, 'fa')
-        ylim_lo = 0.20; ylim_hi = 0.70;
-        ylim_diff_lo = -0.25; ylim_diff_hi = 0.25;
+        ylim_lo = 0.20; ylim_hi = 0.70; %start the yaxis numbering from 0.20 to 0.70. the FA has a range from 0-1.
+        ylim_diff_lo = -0.25; ylim_diff_hi = 0.25; % do a step on the axis every .25.     
         ylabel = 'Fractional Anisotropy (FA)';
         ylabel_diff = 'Difference in Fractional Anisotropy (FA)';
     elseif strcmp(wm_measure, 'md')
-        ylim_lo = 0.30; ylim_hi = 0.70;
+        ylim_lo = 0.10; ylim_hi = 1.20;
         ylim_diff_lo = -0.25; ylim_diff_hi = 0.25;
         ylabel = 'Mean Diffusivity (MD)';
         ylabel_diff = 'Difference in Mean Diffusivity (MD)';
@@ -77,7 +81,7 @@ for w = 1:length(w_measures)
     sub_count = 0;
     for i = 1:size(grp_contents, 1)
         
-        % Only collect values for subjects that have both MRI and behaviora/demographic data.
+        % Only collect values for subjects that have both MRI and behavioral/demographic data.
         if ~isempty(find((beh_data_in_tbl.No == str2num(grp_contents(i).name(5:7)))))
             
             % Display current sub ID.
@@ -95,9 +99,9 @@ for w = 1:length(w_measures)
             for j = 1:size(sub_contents_tractprofiles)
                 
                 % Preallocate based on number of subjects(size(grp_contents)) and number of tracts (size(sub_contents...)).
-                if i == 1 && j == 1
+                if i == 1 && j == 1 %logical indexing, means all true
                     
-                    tract = {}; m = NaN(size(grp_contents, 1), size(sub_contents_tractprofiles, 1));
+                    tract = {}; 
                     
                 end
                 
@@ -122,6 +126,8 @@ for w = 1:length(w_measures)
                 end
                 
                 % Grab tract name for grouping variable.
+                %note: repmat fuction stands for 'Repeat copies of array'
+
                 tract(:, j, sub_count) = repmat({sub_contents_tractprofiles(j).name(1:end-13)}, 161, 1);
                 
                 % Grab subID.
@@ -136,7 +142,7 @@ for w = 1:length(w_measures)
                 % Get age in months.
                 age(sub_count) = beh_data_in_tbl.Age(find((beh_data_in_tbl.No == str2num(grp_contents(i).name(5:7)))));
                 
-                clear data_temp
+                %clear data_temp
                 
             end % end if exist
             
@@ -153,6 +159,7 @@ for w = 1:length(w_measures)
     
     % Get a list of unique sub IDs.
     subID = unique(sub);
+    subID = subID(subID ~= 0);
     
     % Plot tract profiles for each tract.
     for k = 1:size(list_tract, 1)
@@ -172,20 +179,22 @@ for w = 1:length(w_measures)
                 && ~strcmp(list_tract{k}, 'empty')
             
             % Find entries that are for this tract.
+            %note: t_idx stands for tract index
             t_idx = strcmp(tract, list_tract{k});
             
             % Open a new figure for this tract.
             figcount = figcount + 1;
             figure(figcount)
             
-            exp_count = 0; beg_count = 0; con_count = 0;
-            for s = 1:size(m_wm, 3)
+            count = 0; exp_count = 0; beg_count = 0; con_count = 0;
+            for s = 1:length(subID)
                 
                 % Only include subjects who are not outliers.
-                if sub(1, 1, s)~=0 && ~ismember(sub(1, 1, s), outlier)
+                if ~ismember(subID(s), outlier)
                     
-                    % Find entries that are for this subject.
-                    s_idx = sub == sub(1, 1, s);
+                    % Find entries that are for this subject.%note:s_idx
+                    % stands for subject index
+                    s_idx = sub == subID(s);
                     
                     for session = 1:2
                         
@@ -193,9 +202,15 @@ for w = 1:length(w_measures)
                         ses_idx = ses == session;
                         
                         % Subset the thing so that we only plot for this tract, subject, and session.
-                        t_temp = m_wm(find(t_idx == 1 & s_idx == 1 & ses_idx == 1));
+                        %note: t_idx ==1 means that its the index for this
+                        %tract when this is true equals to 1 (logical) and it changes
+                        %everytime based on the loop eg., for session 2, sub 114, rightVOF 
+                        %
+                        t_temp = m_wm(t_idx == 1 & s_idx == 1 & ses_idx == 1);
                         
                         if ~isempty(t_temp)
+                            
+                            count = count + 1;
                             
                             % Different line styles for session 1 and session 2.
                             if session == 1
@@ -205,22 +220,22 @@ for w = 1:length(w_measures)
                             end
                             
                             % Code the plot for subject and keep data for inspection (yc, oc, a).
-                            if group(s) == 3 % expert
+                            if group(count) == 3 % expert
                                 
                                 exp_count = exp_count + 1;
 
                                 % Collect.
                                 expert(:, exp_count) = t_temp;
-                                expert_ses(:, exp_count) = session;
+                                expert_ses(exp_count) = session;
                                 
                                 
-                            elseif group(s) == 2 % beginner
+                            elseif group(count) == 2 % beginner
                                 
                                 beg_count = beg_count + 1;
                                 
                                 % Collect.
                                 beg(:, beg_count) = t_temp;
-                                beg_ses(:, beg_count) = session;
+                                beg_ses(beg_count) = session;
                                 
                             else % control
                                 
@@ -228,23 +243,23 @@ for w = 1:length(w_measures)
                                 
                                 % Collect.
                                 con(:, con_count) = t_temp;
-                                con_ses(:, con_count) = session;
+                                con_ses(con_count) = session;
                                 
                             end
                             
-                            hold on;
-                            
-                            clear t_temp;
-                            
                         end % if ~isempty
+                                                                        
+                        clear t_temp;
                         
                     end % for session
                     
-                end % if subID{s} ~= 0
+                end % if ~ismember(subID(s), outlier)
                 
             end % for s
             
             % Plot means and 95% confidence intervals (calculated from standard error: 1.96*SE). 
+            %note: the 'subplot' function creates multiple plots in one axis. e.g., subplot(1,3,1) stands for: create 3 plots in one row (axis). the last number in the brackets, indicate the position of the figure on the axis (e.g., 1st figure).. 
+
             subplot(1, 3, 1)
             xnew = expert(:, expert_ses == 1); c = exp_color;
             plot(nanmean(xnew, 2), 'LineWidth', 3, 'LineStyle', '-', 'Color', c(1:3))
@@ -270,7 +285,7 @@ for w = 1:length(w_measures)
             xax.TickLength = [xticklength xticklength];
             xax.FontName = fontname;
             xax.FontSize = fontsize;
-            xax.FontAngle = fontangle;
+           % xax.FontAngle = fontangle;
             
             % yaxis
             yax = get(gca,'yaxis');
@@ -288,7 +303,8 @@ for w = 1:length(w_measures)
             g.XLabel.FontSize = fontsize;
             g.XLabel.FontAngle = fontangle;
             pbaspect([1 1 1])
-            title('Experts')
+            title('Experienced')
+            legend ('session 1, mean', '', 'session 2, mean', '',  'Location', 'best')
             hold off;
             
             subplot(1, 3, 2)
@@ -313,7 +329,7 @@ for w = 1:length(w_measures)
             xax.TickLength = [xticklength xticklength];
             xax.FontName = fontname;
             xax.FontSize = fontsize;
-            xax.FontAngle = fontangle;
+           % xax.FontAngle = fontangle;
             
             % yaxis
             yax = get(gca,'yaxis');
@@ -323,7 +339,7 @@ for w = 1:length(w_measures)
             yax.TickLabels = {num2str(ylim_lo, '%2.2f'), num2str((ylim_lo+ylim_hi)/2, '%2.2f'), num2str(ylim_hi, '%2.2f')};
             yax.FontName = fontname;
             yax.FontSize = fontsize;
-            
+                        
             % general
             g = gca;
             box off
@@ -332,6 +348,7 @@ for w = 1:length(w_measures)
             g.XLabel.FontAngle = fontangle;
             pbaspect([1 1 1])
             title('Beginners')
+            legend ('session 1, mean', '', 'session 2, mean', '',  'Location', 'best')
             hold off;
             
             subplot(1, 3, 3)
@@ -356,7 +373,7 @@ for w = 1:length(w_measures)
             xax.TickLength = [xticklength xticklength];
             xax.FontName = fontname;
             xax.FontSize = fontsize;
-            xax.FontAngle = fontangle;
+           % xax.FontAngle = fontangle;
             
             % yaxis
             yax = get(gca,'yaxis');
@@ -375,6 +392,7 @@ for w = 1:length(w_measures)
             g.XLabel.FontAngle = fontangle;
             pbaspect([1 1 1])
             title('Controls')
+            legend ('session 1, mean', '', 'session 2, mean', '',  'Location', 'best')
             hold off;
             
             sgtitle(list_tract{k})
@@ -382,9 +400,22 @@ for w = 1:length(w_measures)
             print(fullfile(rootDir, 'plots', ['plot_tractprofiles_' wm_measure '_' list_tract{k}]), '-dpng')
             print(fullfile(rootDir, 'plots', 'eps', ['plot_tractprofiles_' wm_measure '_' list_tract{k}]), '-depsc')
             
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            
             % Open a new figure for the mean plot.
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            %Note: i have removed the data of the participants who attented
+            %only ses 1. subs 106, 108, 110, 113, 123, 124, 128, 131, 136,
+            %137, 141, 142, 144, 147, 151, 156, 164, 171, 172, 176, 177,
+            %187, 189, 195, 203, 206, 207, 231, 911
+            
             figcount = figcount + 1;
             figure(figcount)
+                      
+            %note: 'xnew1' variable is the mean for session 1 and 'xnew2'
+            %variable is the mean for session 2', 'xnew' is the difference
+            %between the two sessions
             
             xnew1 = expert(:, expert_ses == 1); xnew2 = expert(:, expert_ses == 2); c = exp_color;
             if size(xnew1, 2) == size(xnew2, 2) % must have both session 1 and session 2 for all subs
@@ -392,11 +423,14 @@ for w = 1:length(w_measures)
                 plot(nanmean(xnew, 2), 'LineWidth', 3, 'LineStyle', '-', 'Color', c(1:3))
                 hi = nanmean(xnew, 2) + 1.96*nanstd(xnew, 0, 2)/sqrt(size(~isnan(xnew), 2)); lo = nanmean(xnew, 2) - 1.96*nanstd(xnew, 0, 2)/sqrt(size(~isnan(xnew), 2)); x = (1:size(nanmean(xnew, 2),1))';
                 hp1 = patch([x; x(end:-1:1); x(1)], [lo; hi(end:-1:1); lo(1)], c(1:3));
+                %note:patch(X,Y,C) adds the filled two-dimensional patch to the current axes. 
+                %The elements of X and Y specify the vertices of a polygon. 
+                %If X and Y are matrices, MATLAB draws one polygon per column. C determines the color of the patch.
                 set(hp1, 'facecolor', c(1:3), 'edgecolor', 'none', 'facealpha', .2);
                 hold on;
             elseif size(xnew1, 2) < size(xnew2, 2)
                 disp(['Unable to plot session difference for ' wm_measure ' for ' list_tract{k} ' because at least one subject is missing tractprofile for session 1.'])
-            else size(xnew1, 2) > size(xnew2, 2)
+            else size(xnew1, 2) > size(xnew2, 2);
                 disp(['Unable to plot session difference for ' wm_measure ' for ' list_tract{k} ' because at least one subject is missing tractprofile for session 2.'])
             end
             xnew1 = beg(:, beg_ses == 1); xnew2 = beg(:, beg_ses == 2); c = beg_color;
@@ -409,7 +443,7 @@ for w = 1:length(w_measures)
                 hold on;
             elseif size(xnew1, 2) < size(xnew2, 2)
                 disp(['Unable to plot session difference for ' wm_measure ' for ' list_tract{k} ' because at least one subject is missing tractprofile for session 1.'])
-            else size(xnew1, 2) > size(xnew2, 2)
+            else size(xnew1, 2) > size(xnew2, 2);
                 disp(['Unable to plot session difference for ' wm_measure ' for ' list_tract{k} ' because at least one subject is missing tractprofile for session 2.'])
             end
             xnew1 = con(:, con_ses == 1); xnew2 = con(:, con_ses == 2); c = con_color;
@@ -422,7 +456,7 @@ for w = 1:length(w_measures)
                 hold on;
             elseif size(xnew1, 2) < size(xnew2, 2)
                 disp(['Unable to plot session difference for ' wm_measure ' for ' list_tract{k} ' because at least one subject is missing tractprofile for session 1.'])
-            else size(xnew1, 2) > size(xnew2, 2)
+            else size(xnew1, 2) > size(xnew2, 2);
                 disp(['Unable to plot session difference for ' wm_measure ' for ' list_tract{k} ' because at least one subject is missing tractprofile for session 2.'])
             end
             
@@ -438,7 +472,7 @@ for w = 1:length(w_measures)
             xax.TickLength = [xticklength xticklength];
             xax.FontName = fontname;
             xax.FontSize = fontsize;
-            xax.FontAngle = fontangle;
+            %xax.FontAngle = fontangle;
             
             % yaxis
             yax = get(gca,'yaxis');
@@ -458,6 +492,8 @@ for w = 1:length(w_measures)
             g.YLabel.String = {ylabel_diff; '(Session 2 - Session 1)'};
             g.YLabel.FontSize = fontsize;
             
+            legend({'Experienced', '', 'Beginner', '', 'Control', ''}, 'Location', 'best');
+            
             pbaspect([1 1 1])
             title(list_tract{k})
             
@@ -471,7 +507,3 @@ for w = 1:length(w_measures)
     end %tract
     
 end %w
-
-
-
-
