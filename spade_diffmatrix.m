@@ -307,6 +307,8 @@ diff_beg = nanmean(tdiff_beg, 1);
 diff_con = nanmean(tdiff_con, 1);
 
 figure(1)
+
+subplot(3, 1, 1)
 % clear tidx
 [~, tidx2] = sort(diff_beg, 'descend');
 
@@ -340,10 +342,9 @@ colorbar; caxis([-.005, .005]);
 %
 
 title('Sorted for Beginner')
-print(fullfile(rootDir, 'plots', ['plot_diffmatrix_' wm_measure '_beg']), '-dpng')
-print(fullfile(rootDir, 'plots', 'eps', ['plot_diffmatrix_' wm_measure '_beg']), '-depsc')
+pbaspect([5 1 1])
 
-figure(2)
+subplot(3, 1, 2)
 % clear tidx2;
 [~, tidx3] = sort(diff_exp, 'descend');
 
@@ -377,10 +378,9 @@ colorbar; caxis([-.005, .005]);
 %
 
 title('Sorted for Expert')
-print(fullfile(rootDir, 'plots', ['plot_diffmatrix_' wm_measure '_exp']), '-dpng')
-print(fullfile(rootDir, 'plots', 'eps', ['plot_diffmatrix_' wm_measure '_exp']), '-depsc')
+pbaspect([5 1 1])
 
-figure(3)
+subplot(3, 1, 3)
 % clear tidx2;
 [~, tidx4] = sort(diff_con, 'descend');
 
@@ -413,8 +413,10 @@ colorbar; caxis([-.005, .005]);
 %     xax.FontSize = fontsize;
 %
 
-title('Sorted for Expert')
-print(fullfile(rootDir, 'plots', ['plot_diffmatrix_' wm_measure '_con']), '-dpng')
-print(fullfile(rootDir, 'plots', 'eps', ['plot_diffmatrix_' wm_measure '_con']), '-depsc')
+title('Sorted for Control')
+pbaspect([5 1 1])
+
+print(fullfile(rootDir, 'plots', ['plot_diffmatrix_' wm_measure ]), '-dpng')
+print(fullfile(rootDir, 'plots', 'eps', ['plot_diffmatrix_' wm_measure]), '-depsc')
 
 end
