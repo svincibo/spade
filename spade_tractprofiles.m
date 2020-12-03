@@ -1,6 +1,6 @@
 % This script reads in FA and MD measures (from Brad Caron's
 % TractProfiles App) for each of the tracts generated (from Dan Bullock's
-% White Matter Segmentation App). 
+% White Matter Segmentation App).
 % It also reads in behavioral data (e.g., experimental group) collected as part of the
 % spade study.
 %it runs twice, one for producing the plots for mena Fa and difference (S2-S1) and one for mean MD and
@@ -37,7 +37,7 @@ save_figures = 'yes';
 remove_outliers = 'yes';
 if strcmp(remove_outliers, 'yes')
     
-    % Identify outliers to be removed - e.g., outlier = [108 126 212 214 318];  
+    % Identify outliers to be removed - e.g., outlier = [108 126 212 214 318];
     outlier = [];
     
 else
@@ -56,7 +56,7 @@ for w = 1%:length(w_measures)
     
     if strcmp(wm_measure, 'fa')
         ylim_lo = 0.20; ylim_hi = 0.70; %start the yaxis numbering from 0.20 to 0.70. the FA has a range from 0-1.
-        ylim_diff_lo = -0.25; ylim_diff_hi = 0.25; % do a step on the axis every .25.     
+        ylim_diff_lo = -0.25; ylim_diff_hi = 0.25; % do a step on the axis every .25.
         ylabel = 'Fractional Anisotropy (FA)';
         ylabel_diff = 'Difference in Fractional Anisotropy (FA)';
     elseif strcmp(wm_measure, 'md')
@@ -101,7 +101,7 @@ for w = 1%:length(w_measures)
                 % Preallocate based on number of subjects(size(grp_contents)) and number of tracts (size(sub_contents...)).
                 if i == 1 && j == 1 %logical indexing, means all true
                     
-                    tract = {}; 
+                    tract = {};
                     
                 end
                 
@@ -115,19 +115,19 @@ for w = 1%:length(w_measures)
                 % Read in mean WM measure.
                 if strcmp(wm_measure, 'fa')
                     
-                    m_wm(:, j, sub_count) = data_temp.fa_1(start:stop);
-                    sd_wm(:, j, sub_count) = data_temp.fa_2(start:stop);
+                    m_wm(:, j, sub_count) = data_temp.fa_mean(start:stop);
+                    sd_wm(:, j, sub_count) = data_temp.fa_sd(start:stop);
                     
                 elseif strcmp(wm_measure, 'md')
                     
-                    m_wm(:, j, sub_count) = data_temp.md_1(start:stop);
-                    sd_wm(:, j, sub_count) = data_temp.md_2(start:stop);
-                                        
+                    m_wm(:, j, sub_count) = data_temp.md_mean(start:stop);
+                    sd_wm(:, j, sub_count) = data_temp.md_sd(start:stop);
+                    
                 end
                 
                 % Grab tract name for grouping variable.
                 %note: repmat fuction stands for 'Repeat copies of array'
-
+                
                 tract(:, j, sub_count) = repmat({sub_contents_tractprofiles(j).name(1:end-13)}, 161, 1);
                 
                 % Grab subID.
@@ -181,7 +181,7 @@ for w = 1%:length(w_measures)
             % Find entries that are for this tract.
             %note: t_idx stands for tract index
             t_idx = strcmp(tract, list_tract{k});
-            
+                        
             % Open a new figure for this tract.
             figcount = figcount + 1;
             figure(figcount)
@@ -195,60 +195,64 @@ for w = 1%:length(w_measures)
                     % Find entries that are for this subject.%note:s_idx
                     % stands for subject index
                     s_idx = sub == subID(s);
-                    
+                                        
                     for session = 1:2
                         
                         % Find entries that are for this session.
                         ses_idx = ses == session;
-                        
+                                                
                         % Subset the thing so that we only plot for this tract, subject, and session.
                         %note: t_idx ==1 means that its the index for this
                         %tract when this is true equals to 1 (logical) and it changes
-                        %everytime based on the loop eg., for session 2, sub 114, rightVOF 
-                        %
+                        %everytime based on the loop eg., for session 2, sub 114, rightVOF
+                        
                         t_temp = m_wm(t_idx == 1 & s_idx == 1 & ses_idx == 1);
                         
-                        if ~isempty(t_temp)
+                        if isempty(t_temp)
                             
-                            count = count + 1;
+                            t_temp = NaN(161, 1);
                             
-                            % Different line styles for session 1 and session 2.
-                            if session == 1
-                                linestyle = '-';
-                            elseif session == 2
-                                linestyle = ':';
-                            end
+                        end
+                        
+                        count = count + 1;
+                        
+                        % Different line styles for session 1 and session 2.
+                        if session == 1
+                            linestyle = '-';
+                        elseif session == 2
+                            linestyle = ':';
+                        end
+                        
+                        % Code the plot for subject and keep data for inspection (yc, oc, a).
+                        if group(count) == 3 % expert
                             
-                            % Code the plot for subject and keep data for inspection (yc, oc, a).
-                            if group(count) == 3 % expert
-                                
-                                exp_count = exp_count + 1;
-
-                                % Collect.
-                                expert(:, exp_count) = t_temp;
-                                expert_ses(exp_count) = session;
-                                
-                                
-                            elseif group(count) == 2 % beginner
-                                
-                                beg_count = beg_count + 1;
-                                
-                                % Collect.
-                                beg(:, beg_count) = t_temp;
-                                beg_ses(beg_count) = session;
-                                
-                            else % control
-                                
-                                con_count = con_count + 1;
-                                
-                                % Collect.
-                                con(:, con_count) = t_temp;
-                                con_ses(con_count) = session;
-                                
-                            end
+                            exp_count = exp_count + 1;
                             
-                        end % if ~isempty
-                                                                        
+                            % Collect.
+                            expert(:, exp_count) = t_temp;
+                            expert_ses(exp_count) = session;
+                            
+                            
+                        elseif group(count) == 2 % beginner
+                            
+                            beg_count = beg_count + 1;
+                            
+                            % Collect.
+                            beg(:, beg_count) = t_temp;
+                            beg_ses(beg_count) = session;
+                            
+                        elseif group(count) == 1 % control
+                            
+                            con_count = con_count + 1;
+                            
+                            % Collect.
+                            con(:, con_count) = t_temp;
+                            con_ses(con_count) = session;
+                            
+                        end
+                        
+                        %                         end % if ~isempty
+                        
                         clear t_temp;
                         
                     end % for session
@@ -257,9 +261,9 @@ for w = 1%:length(w_measures)
                 
             end % for s
             
-            % Plot means and 95% confidence intervals (calculated from standard error: 1.96*SE). 
-            %note: the 'subplot' function creates multiple plots in one axis. e.g., subplot(1,3,1) stands for: create 3 plots in one row (axis). the last number in the brackets, indicate the position of the figure on the axis (e.g., 1st figure).. 
-
+            % Plot means and 95% confidence intervals (calculated from standard error: 1.96*SE).
+            %note: the 'subplot' function creates multiple plots in one axis. e.g., subplot(1,3,1) stands for: create 3 plots in one row (axis). the last number in the brackets, indicate the position of the figure on the axis (e.g., 1st figure)..
+            
             subplot(1, 3, 1)
             xnew = expert(:, expert_ses == 1); c = exp_color;
             plot(nanmean(xnew, 2), 'LineWidth', 3, 'LineStyle', '-', 'Color', c(1:3))
@@ -285,7 +289,7 @@ for w = 1%:length(w_measures)
             xax.TickLength = [xticklength xticklength];
             xax.FontName = fontname;
             xax.FontSize = fontsize;
-           % xax.FontAngle = fontangle;
+            % xax.FontAngle = fontangle;
             
             % yaxis
             yax = get(gca,'yaxis');
@@ -329,7 +333,7 @@ for w = 1%:length(w_measures)
             xax.TickLength = [xticklength xticklength];
             xax.FontName = fontname;
             xax.FontSize = fontsize;
-           % xax.FontAngle = fontangle;
+            % xax.FontAngle = fontangle;
             
             % yaxis
             yax = get(gca,'yaxis');
@@ -339,7 +343,7 @@ for w = 1%:length(w_measures)
             yax.TickLabels = {num2str(ylim_lo, '%2.2f'), num2str((ylim_lo+ylim_hi)/2, '%2.2f'), num2str(ylim_hi, '%2.2f')};
             yax.FontName = fontname;
             yax.FontSize = fontsize;
-                        
+            
             % general
             g = gca;
             box off
@@ -373,7 +377,7 @@ for w = 1%:length(w_measures)
             xax.TickLength = [xticklength xticklength];
             xax.FontName = fontname;
             xax.FontSize = fontsize;
-           % xax.FontAngle = fontangle;
+            % xax.FontAngle = fontangle;
             
             % yaxis
             yax = get(gca,'yaxis');
@@ -412,52 +416,52 @@ for w = 1%:length(w_measures)
             
             figcount = figcount + 1;
             figure(figcount)
-                      
+            
+            disp(list_tract{k})
             %note: 'xnew1' variable is the mean for session 1 and 'xnew2'
             %variable is the mean for session 2', 'xnew' is the difference
             %between the two sessions
             
             xnew1 = expert(:, expert_ses == 1); xnew2 = expert(:, expert_ses == 2); c = exp_color;
-            if size(xnew1, 2) == size(xnew2, 2) % must have both session 1 and session 2 for all subs
-                xnew = xnew2 - xnew1;
-                plot(nanmean(xnew, 2), 'LineWidth', 3, 'LineStyle', '-', 'Color', c(1:3))
-                hi = nanmean(xnew, 2) + 1.96*nanstd(xnew, 0, 2)/sqrt(size(~isnan(xnew), 2)); lo = nanmean(xnew, 2) - 1.96*nanstd(xnew, 0, 2)/sqrt(size(~isnan(xnew), 2)); x = (1:size(nanmean(xnew, 2),1))';
-                hp1 = patch([x; x(end:-1:1); x(1)], [lo; hi(end:-1:1); lo(1)], c(1:3));
-                %note:patch(X,Y,C) adds the filled two-dimensional patch to the current axes. 
-                %The elements of X and Y specify the vertices of a polygon. 
-                %If X and Y are matrices, MATLAB draws one polygon per column. C determines the color of the patch.
-                set(hp1, 'facecolor', c(1:3), 'edgecolor', 'none', 'facealpha', .2);
-                hold on;
-            elseif size(xnew1, 2) < size(xnew2, 2)
-                disp(['Unable to plot session difference for ' wm_measure ' for ' list_tract{k} ' because at least one subject is missing tractprofile for session 1.'])
-            else size(xnew1, 2) > size(xnew2, 2);
-                disp(['Unable to plot session difference for ' wm_measure ' for ' list_tract{k} ' because at least one subject is missing tractprofile for session 2.'])
+            xnew = xnew2 - xnew1;
+            plot(nanmean(xnew, 2), 'LineWidth', 3, 'LineStyle', '-', 'Color', c(1:3))
+            hi = nanmean(xnew, 2) + 1.96*nanstd(xnew, 0, 2)/sqrt(size(~isnan(xnew), 2)); lo = nanmean(xnew, 2) - 1.96*nanstd(xnew, 0, 2)/sqrt(size(~isnan(xnew), 2)); x = (1:size(nanmean(xnew, 2),1))';
+            hp1 = patch([x; x(end:-1:1); x(1)], [lo; hi(end:-1:1); lo(1)], c(1:3));
+            %note:patch(X,Y,C) adds the filled two-dimensional patch to the current axes.
+            %The elements of X and Y specify the vertices of a polygon.
+            %If X and Y are matrices, MATLAB draws one polygon per column. C determines the color of the patch.
+            set(hp1, 'facecolor', c(1:3), 'edgecolor', 'none', 'facealpha', .2);
+            hold on;
+%             plot(xnew, 'LineWidth', 1, 'Color', c(1:3));
+            if any(all(isnan(xnew), 1))
+                n_missing = sum(all(isnan(xnew), 1));
+                disp(['Expert Group has ' num2str(n_missing) ' subjects with missing ' list_tract{k} '.'])
             end
+            
             xnew1 = beg(:, beg_ses == 1); xnew2 = beg(:, beg_ses == 2); c = beg_color;
-            if size(xnew1, 2) == size(xnew2, 2) % must have both session 1 and session 2 for all subs
-                xnew = xnew2 - xnew1;
-                plot(nanmean(xnew, 2), 'LineWidth', 3, 'LineStyle', '-', 'Color', c(1:3))
-                hi = nanmean(xnew, 2) + 1.96*nanstd(xnew, 0, 2)/sqrt(size(~isnan(xnew), 2)); lo = nanmean(xnew, 2) - 1.96*nanstd(xnew, 0, 2)/sqrt(size(~isnan(xnew), 2)); x = (1:size(nanmean(xnew, 2),1))';
-                hp1 = patch([x; x(end:-1:1); x(1)], [lo; hi(end:-1:1); lo(1)], c(1:3));
-                set(hp1, 'facecolor', c(1:3), 'edgecolor', 'none', 'facealpha', .2);
-                hold on;
-            elseif size(xnew1, 2) < size(xnew2, 2)
-                disp(['Unable to plot session difference for ' wm_measure ' for ' list_tract{k} ' because at least one subject is missing tractprofile for session 1.'])
-            else size(xnew1, 2) > size(xnew2, 2);
-                disp(['Unable to plot session difference for ' wm_measure ' for ' list_tract{k} ' because at least one subject is missing tractprofile for session 2.'])
+            xnew = xnew2 - xnew1;
+            plot(nanmean(xnew, 2), 'LineWidth', 3, 'LineStyle', '-', 'Color', c(1:3))
+            hi = nanmean(xnew, 2) + 1.96*nanstd(xnew, 0, 2)/sqrt(size(~isnan(xnew), 2)); lo = nanmean(xnew, 2) - 1.96*nanstd(xnew, 0, 2)/sqrt(size(~isnan(xnew), 2)); x = (1:size(nanmean(xnew, 2),1))';
+            hp1 = patch([x; x(end:-1:1); x(1)], [lo; hi(end:-1:1); lo(1)], c(1:3));
+            set(hp1, 'facecolor', c(1:3), 'edgecolor', 'none', 'facealpha', .2);
+            hold on;
+%             plot(xnew, 'LineWidth', 1, 'Color', c(1:3));
+            if any(all(isnan(xnew), 1))
+                n_missing = sum(all(isnan(xnew), 1));
+                disp(['Beginner Group has ' num2str(n_missing) ' subjects with missing ' list_tract{k} '.'])
             end
+            
             xnew1 = con(:, con_ses == 1); xnew2 = con(:, con_ses == 2); c = con_color;
-            if size(xnew1, 2) == size(xnew2, 2) % must have both session 1 and session 2 for all subs
-                xnew = xnew2 - xnew1;
-                plot(nanmean(xnew, 2), 'LineWidth', 3, 'LineStyle', '-', 'Color', c(1:3))
-                hi = nanmean(xnew, 2) + 1.96*nanstd(xnew, 0, 2)/sqrt(size(~isnan(xnew), 2)); lo = nanmean(xnew, 2) - 1.96*nanstd(xnew, 0, 2)/sqrt(size(~isnan(xnew), 2)); x = (1:size(nanmean(xnew, 2),1))';
-                hp1 = patch([x; x(end:-1:1); x(1)], [lo; hi(end:-1:1); lo(1)], c(1:3));
-                set(hp1, 'facecolor', c(1:3), 'edgecolor', 'none', 'facealpha', .2);
-                hold on;
-            elseif size(xnew1, 2) < size(xnew2, 2)
-                disp(['Unable to plot session difference for ' wm_measure ' for ' list_tract{k} ' because at least one subject is missing tractprofile for session 1.'])
-            else size(xnew1, 2) > size(xnew2, 2);
-                disp(['Unable to plot session difference for ' wm_measure ' for ' list_tract{k} ' because at least one subject is missing tractprofile for session 2.'])
+            xnew = xnew2 - xnew1;
+            plot(nanmean(xnew, 2), 'LineWidth', 3, 'LineStyle', '-', 'Color', c(1:3))
+            hi = nanmean(xnew, 2) + 1.96*nanstd(xnew, 0, 2)/sqrt(size(~isnan(xnew), 2)); lo = nanmean(xnew, 2) - 1.96*nanstd(xnew, 0, 2)/sqrt(size(~isnan(xnew), 2)); x = (1:size(nanmean(xnew, 2),1))';
+            hp1 = patch([x; x(end:-1:1); x(1)], [lo; hi(end:-1:1); lo(1)], c(1:3));
+            set(hp1, 'facecolor', c(1:3), 'edgecolor', 'none', 'facealpha', .2);
+            hold on;
+%             plot(xnew, 'LineWidth', 1, 'Color', c(1:3));
+            if any(all(isnan(xnew), 1))
+                n_missing = sum(all(isnan(xnew), 1));
+                disp(['Control Group has ' num2str(n_missing) ' subjects with missing ' list_tract{k} '.'])
             end
             
             % Add reference line at y=0.
