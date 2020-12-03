@@ -182,10 +182,10 @@ for w = 1:length(w_measures)
             % Find entries that are for this tract.
             %note: t_idx stands for tract index
             t_idx = strcmp(tract, list_tract{k});
-                  
-%             % Open a new figure for this tract.
-%             figcount = figcount + 1;
-%             figure(figcount)
+            
+            %             % Open a new figure for this tract.
+            %             figcount = figcount + 1;
+            %             figure(figcount)
             
             count = 0; exp_count = 0; beg_count = 0; con_count = 0;
             for s = 1:length(subID)
@@ -196,12 +196,12 @@ for w = 1:length(w_measures)
                     % Find entries that are for this subject.%note:s_idx
                     % stands for subject index
                     s_idx = sub == subID(s);
-                                        
+                    
                     for session = 1:2
                         
                         % Find entries that are for this session.
                         ses_idx = ses == session;
-                                                
+                        
                         % Subset the thing so that we only plot for this tract, subject, and session.
                         %note: t_idx ==1 means that its the index for this
                         %tract when this is true equals to 1 (logical) and it changes
@@ -216,13 +216,13 @@ for w = 1:length(w_measures)
                         end
                         
                         count = count + 1;
-%                         
-%                         % Different line styles for session 1 and session 2.
-%                         if session == 1
-%                             linestyle = '-';
-%                         elseif session == 2
-%                             linestyle = ':';
-%                         end
+                        %
+                        %                         % Different line styles for session 1 and session 2.
+                        %                         if session == 1
+                        %                             linestyle = '-';
+                        %                         elseif session == 2
+                        %                             linestyle = ':';
+                        %                         end
                         
                         % Code the plot for subject and keep data for inspection (yc, oc, a).
                         if group(count) == 3 % expert
@@ -232,6 +232,7 @@ for w = 1:length(w_measures)
                             % Collect.
                             expert(:, exp_count) = t_temp;
                             expert_ses(exp_count) = session;
+                            exp_subID{exp_count} = num2str(subID(s));
                             
                             
                         elseif group(count) == 2 % beginner
@@ -241,6 +242,7 @@ for w = 1:length(w_measures)
                             % Collect.
                             beg(:, beg_count) = t_temp;
                             beg_ses(beg_count) = session;
+                            beg_subID{beg_count} = num2str(subID(s));
                             
                         elseif group(count) == 1 % control
                             
@@ -249,6 +251,8 @@ for w = 1:length(w_measures)
                             % Collect.
                             con(:, con_count) = t_temp;
                             con_ses(con_count) = session;
+                            con_subID{con_count} = num2str(subID(s));
+                            
                             
                         end
                         
@@ -262,47 +266,133 @@ for w = 1:length(w_measures)
                 
             end % for s
             
-%             figcount = figcount + 1;
-%             figure(figcount)
-%             
-%             disp(list_tract{k})
+            % Subset subID to account for the duplicates that occur because
+            % of two sessions.
+            exp_subID = exp_subID(1:2:end);
+            beg_subID = beg_subID(1:2:end);
+            con_subID = con_subID(1:2:end);
+            
+            
+            %             figcount = figcount + 1;
+            %             figure(figcount)
+            %
+            %             disp(list_tract{k})
             %note: 'xnew1' variable is the mean for session 1 and 'xnew2'
             %variable is the mean for session 2', 'xnew' is the difference
             %between the two sessions
             
             figure(k)
+            
+            load(fullfile(rootDir, 'supportFiles', 'redblue_colormap.mat'))
+            % colormap(flipud(redblue(1:128, :)./255));
+            colormap(flipud(redblue./255));
             cmin = -0.04; cmax = 0.04;
             
             subplot(3, 1, 1)
-            xnew1 = expert(:, expert_ses == 1); xnew2 = expert(:, expert_ses == 2); 
+            xnew1 = expert(:, expert_ses == 1); xnew2 = expert(:, expert_ses == 2);
             xnew = xnew2 - xnew1;
             [m_xnew, idx_sort] = sort(median(xnew, 1), 'descend');
             xnew = xnew(:, idx_sort);
             imagesc(xnew'); colorbar; caxis([cmin cmax]);
+            
+            % xaxis
+            xax = get(gca, 'xaxis');
+            xax.Limits = [1 160];
+            xax.TickValues = [1 80 160];
+            xax.TickDirection = 'out';
+            % xax.TickLength = [yticklength yticklength];
+            xlabels = {'20', '100','180'};
+            % xlabels = cellfun(@(x) strrep(x, ',', '\newline'), xlabels, 'UniformOutput', false);
+            xax.TickLabels = xlabels;
+            %     xax.FontName = fontname;
+            %     xax.FontSize = fontsize;
+            % xax.TickLabelRotation = 45;
+            
+            yax = get(gca, 'yaxis');
+            yax.Limits = [1 length(exp_subID)];
+            yax.TickValues = 1:length(exp_subID);
+            yax.TickDirection = 'out';
+            % xax.TickLength = [yticklength yticklength];
+            ylabels = exp_subID(idx_sort);
+%             ylabels = cellfun(@(x) strrep(x, ',', '\newline'), ylabels, 'UniformOutput', false);
+            yax.TickLabels = ylabels;
+            yax.FontSize = 6;
+            
             title('Expert');
             ylabel('Participant'); xlabel('Tract Location');
-                        
+            pbaspect([3 1 1]);
+            
             subplot(3, 1, 2)
-            xnew1 = beg(:, beg_ses == 1); xnew2 = beg(:, beg_ses == 2); 
+            xnew1 = beg(:, beg_ses == 1); xnew2 = beg(:, beg_ses == 2);
             xnew = xnew2 - xnew1;
             [m_xnew, idx_sort] = sort(median(xnew, 1), 'descend');
             xnew = xnew(:, idx_sort);
             imagesc(xnew'); colorbar; caxis([cmin cmax]);
+            
+            % xaxis
+            xax = get(gca, 'xaxis');
+            xax.Limits = [1 160];
+            xax.TickValues = [1 80 160];
+            xax.TickDirection = 'out';
+            % xax.TickLength = [yticklength yticklength];
+            xlabels = {'20', '100','180'};
+            % xlabels = cellfun(@(x) strrep(x, ',', '\newline'), xlabels, 'UniformOutput', false);
+            xax.TickLabels = xlabels;
+            %     xax.FontName = fontname;
+            %     xax.FontSize = fontsize;
+            % xax.TickLabelRotation = 45;
+            
+            yax = get(gca, 'yaxis');
+            yax.Limits = [1 length(beg_subID)];
+            yax.TickValues = 1:length(beg_subID);
+            yax.TickDirection = 'out';
+            % xax.TickLength = [yticklength yticklength];
+            ylabels = beg_subID(idx_sort);
+%             ylabels = cellfun(@(x) strrep(x, ',', '\newline'), ylabels, 'UniformOutput', false);
+            yax.TickLabels = ylabels;
+            yax.FontSize = 6;
+            
             title('Beginner');
             ylabel('Participant'); xlabel('Tract Location');
+            pbaspect([3 1 1]);
             
             subplot(3, 1, 3)
-            xnew1 = con(:, con_ses == 1); xnew2 = con(:, con_ses == 2); 
-            xnew = xnew2 - xnew1; 
+            xnew1 = con(:, con_ses == 1); xnew2 = con(:, con_ses == 2);
+            xnew = xnew2 - xnew1;
             %test for outlier: remove the last column of xnew in con
-%             xnew = xnew(:, 1:end-1);
+            %             xnew = xnew(:, 1:end-1);
             [m_xnew, idx_sort] = sort(median(xnew, 1), 'descend');
             xnew = xnew(:, idx_sort);
             imagesc(xnew'); colorbar; caxis([cmin cmax]);
+            
+            % xaxis
+            xax = get(gca, 'xaxis');
+            xax.Limits = [1 160];
+            xax.TickValues = [1 80 160];
+            xax.TickDirection = 'out';
+            % xax.TickLength = [yticklength yticklength];
+            xlabels = {'20', '100','180'};
+            % xlabels = cellfun(@(x) strrep(x, ',', '\newline'), xlabels, 'UniformOutput', false);
+            xax.TickLabels = xlabels;
+            %     xax.FontName = fontname;
+            %     xax.FontSize = fontsize;
+            % xax.TickLabelRotation = 45;
+            
+            yax = get(gca, 'yaxis');
+            yax.Limits = [1 length(con_subID)];
+            yax.TickValues = 1:length(con_subID);
+            yax.TickDirection = 'out';
+            % xax.TickLength = [yticklength yticklength];
+            ylabels = con_subID(idx_sort);
+%             ylabels = cellfun(@(x) strrep(x, ',', '\newline'), ylabels, 'UniformOutput', false);
+            yax.TickLabels = ylabels;
+            yax.FontSize = 6;
+            
             title('Control');
             ylabel('Participant'); xlabel('Tract Location');
+            pbaspect([3 1 1]);
             
-            sgtitle(list_tract{k});
+            sgtitle([list_tract{k} ', ' wm_measure]);
             
             print(fullfile(rootDir, 'plots', ['plot_tractprofiles_indivdiff_' wm_measure '_' list_tract{k}]), '-dpng')
             print(fullfile(rootDir, 'plots', 'eps', ['plot_tractprofiles_indivdiff_' wm_measure '_' list_tract{k}]), '-depsc')
@@ -313,5 +403,7 @@ for w = 1:length(w_measures)
         
     end %tract
     
-clear diff_beg diff_con diff_exp tdiff_exp tdiff_beg tdiff_con%     
+    clear diff_beg diff_con diff_exp tdiff_exp tdiff_beg tdiff_con
+    close all
+    
 end %w

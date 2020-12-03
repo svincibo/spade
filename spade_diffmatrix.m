@@ -308,9 +308,13 @@ diff_con = nanmean(tdiff_con, 1);
 
 figure(w)
 
+load(fullfile(rootDir, 'supportFiles', 'redblue_colormap.mat'))
+% colormap(flipud(redblue(1:128, :)./255));
+colormap(flipud(redblue./255));
+
 subplot(3, 1, 1)
 clear tidx2
-[~, tidx2] = sort(diff_beg, 'descend');
+[~, tidx2] = sort(diff_exp, 'descend');
 
 imagesc(cat(1, diff_exp(tidx2), diff_beg(tidx2), diff_con(tidx2)));
 
@@ -341,14 +345,14 @@ colorbar; caxis([-.005, .005]);
 %     xax.FontSize = fontsize;
 %
 
-title('Sorted for Beginner')
+title('Sorted for Experienced')
 pbaspect([5 1 1])
 
 subplot(3, 1, 2)
 clear tidx3
-[~, tidx3] = sort(diff_exp, 'descend');
+[~, tidx3] = sort(diff_beg, 'descend');
 
-imagesc(cat(1, diff_exp(tidx3), diff_beg(tidx3), diff_con(tidx3)));
+imagesc(cat(1, diff_beg(tidx3), diff_con(tidx3), diff_exp(tidx3)));
 
 % xaxis
 xax = get(gca, 'xaxis');
@@ -368,7 +372,7 @@ yax.Limits = [0.5 3.5];
 yax.TickValues = [1 2 3];
 yax.TickDirection = 'out';
 % xax.TickLength = [yticklength yticklength];
-ylabels = {'Experienced' ; 'Beginner'; 'Controls'};
+ylabels = {'Beginner'; 'Controls'; 'Experienced'};
 ylabels = cellfun(@(x) strrep(x, ',', '\newline'), ylabels, 'UniformOutput', false);
 yax.TickLabels = ylabels;
 
@@ -377,14 +381,14 @@ colorbar; caxis([-.005, .005]);
 %     xax.FontSize = fontsize;
 %
 
-title('Sorted for Expert')
+title('Sorted for Beginner')
 pbaspect([5 1 1])
 
 subplot(3, 1, 3)
 clear tidx4
 [~, tidx4] = sort(diff_con, 'descend');
 
-imagesc(cat(1, diff_exp(tidx4), diff_beg(tidx4), diff_con(tidx4)));
+imagesc(cat(1, diff_con(tidx4), diff_exp(tidx4), diff_beg(tidx4)));
 
 % xaxis
 xax = get(gca, 'xaxis');
@@ -404,7 +408,7 @@ yax.Limits = [0.5 3.5];
 yax.TickValues = [1 2 3];
 yax.TickDirection = 'out';
 % xax.TickLength = [yticklength yticklength];
-ylabels = {'Experienced' ; 'Beginner'; 'Controls'};
+ylabels = {'Controls'; 'Experienced' ; 'Beginner'};
 ylabels = cellfun(@(x) strrep(x, ',', '\newline'), ylabels, 'UniformOutput', false);
 yax.TickLabels = ylabels;
 
