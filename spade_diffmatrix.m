@@ -50,7 +50,7 @@ end
 beh_data_in_tbl = readtable([rootDir 'supportFiles/SPADE_demographics.csv'], 'TreatAsEmpty', {'.', 'na'});
 
 figcount = 0;
-for w = 1%:length(w_measures)
+for w = 1:length(w_measures)
 
     wm_measure = w_measures{w};
 
@@ -306,10 +306,10 @@ diff_exp = nanmean(tdiff_exp, 1);
 diff_beg = nanmean(tdiff_beg, 1);
 diff_con = nanmean(tdiff_con, 1);
 
-figure(1)
+figure(w)
 
 subplot(3, 1, 1)
-% clear tidx
+clear tidx2
 [~, tidx2] = sort(diff_beg, 'descend');
 
 imagesc(cat(1, diff_exp(tidx2), diff_beg(tidx2), diff_con(tidx2)));
@@ -345,7 +345,7 @@ title('Sorted for Beginner')
 pbaspect([5 1 1])
 
 subplot(3, 1, 2)
-% clear tidx2;
+clear tidx3
 [~, tidx3] = sort(diff_exp, 'descend');
 
 imagesc(cat(1, diff_exp(tidx3), diff_beg(tidx3), diff_con(tidx3)));
@@ -381,7 +381,7 @@ title('Sorted for Expert')
 pbaspect([5 1 1])
 
 subplot(3, 1, 3)
-% clear tidx2;
+clear tidx4
 [~, tidx4] = sort(diff_con, 'descend');
 
 imagesc(cat(1, diff_exp(tidx4), diff_beg(tidx4), diff_con(tidx4)));
@@ -416,7 +416,11 @@ colorbar; caxis([-.005, .005]);
 title('Sorted for Control')
 pbaspect([5 1 1])
 
+% sgtitle(wm_measure);
+
 print(fullfile(rootDir, 'plots', ['plot_diffmatrix_' wm_measure ]), '-dpng')
 print(fullfile(rootDir, 'plots', 'eps', ['plot_diffmatrix_' wm_measure]), '-depsc')
+
+clear diff_beg diff_con diff_exp tdiff_exp tdiff_beg tdiff_con
 
 end
