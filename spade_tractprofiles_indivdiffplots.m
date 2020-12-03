@@ -57,7 +57,7 @@ for w = 1:length(w_measures)
     if strcmp(wm_measure, 'fa')
         ylim_lo = 0.20; ylim_hi = 0.70; %start the yaxis numbering from 0.20 to 0.70. the FA has a range from 0-1.
         ylim_diff_lo = -0.25; ylim_diff_hi = 0.25; % do a step on the axis every .25.
-        ylabel = 'Fractional Anisotropy (FA)';
+        ylab = 'Fractional Anisotropy (FA)';
         ylabel_diff = 'Difference in Fractional Anisotropy (FA)';
     elseif strcmp(wm_measure, 'md')
         ylim_lo = 0.10; ylim_hi = 1.20;
@@ -304,13 +304,14 @@ for w = 1:length(w_measures)
             
             sgtitle(list_tract{k});
             
-            print(fullfile(rootDir, 'plots', ['plot_diffmatrix_' wm_measure '_' list_tract{k}]), '-dpng')
-            print(fullfile(rootDir, 'plots', 'eps', ['plot_diffmatrix_' wm_measure '_' list_tract{k}]), '-depsc')
+            print(fullfile(rootDir, 'plots', ['plot_tractprofiles_indivdiff_' wm_measure '_' list_tract{k}]), '-dpng')
+            print(fullfile(rootDir, 'plots', 'eps', ['plot_tractprofiles_indivdiff_' wm_measure '_' list_tract{k}]), '-depsc')
             
             hold off;
             
         end % if toi
         
     end %tract
-%     
-% end %w
+    
+clear diff_beg diff_con diff_exp tdiff_exp tdiff_beg tdiff_con%     
+end %w
